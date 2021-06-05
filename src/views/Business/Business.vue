@@ -70,7 +70,7 @@
               <el-form-item label="官网链接：">
                 <span>{{ props.row.details.business.websiteUrl }}</span>
               </el-form-item>
-              <el-divider content-position="left">分享</el-divider>
+              <el-divider content-position="left">分 享</el-divider>
               <el-form-item label="分享标题：">
                 <span>{{ props.row.details.share.title }}</span>
               </el-form-item>
