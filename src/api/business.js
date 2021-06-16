@@ -30,3 +30,9 @@ export function deleteData(id) {
     data: { id }
   })
 }
+export function getSelectList() {
+  return request({
+    url: '/hall/videotype',
+    method: 'get'
+  })
+}

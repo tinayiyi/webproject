@@ -54,6 +54,14 @@
               <el-form-item label="操作人：">
                 <span>{{ props.row.details.something.adminName }}</span>
               </el-form-item>
+              <el-form-item label="行业类型：">
+                <span v-for="(item, index) in hangyeTypeList" :key="index" v-show="props.row.hangyeType == item.id">{{
+                  item.label
+                }}</span>
+              </el-form-item>
+              <el-form-item label="备注描述：">
+                <span>{{ props.row.details.describe }}</span>
+              </el-form-item>
               <el-divider content-position="left">项目简介</el-divider>
               <div v-for="(item, index) in props.row.details.introduce" :key="index" class="introduce-box">
                 <el-form-item :label="`${item.title}:`">
@@ -63,6 +71,9 @@
               <el-divider content-position="left">商家简介</el-divider>
               <el-form-item label="公司名称：">
                 <span>{{ props.row.details.business.companyName }}</span>
+              </el-form-item>
+              <el-form-item label="公司头像：">
+                <span>{{ props.row.details.business.companyLogo }}</span>
               </el-form-item>
               <el-form-item label="类型：">
                 <span>{{ props.row.details.business.type }}</span>
@@ -180,6 +191,22 @@
             >
             </el-input>
           </el-form-item>
+          <el-form-item label="行业:">
+            <el-select style="width:260px" v-model="submitForm.hangyeType" placeholder="请选择">
+              <el-option v-for="item in hangyeTypeList" :key="item.id + ''" :label="item.label" :value="item.id + ''">
+              </el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="备注描述">
+            <el-input
+              type="textarea"
+              style="width:680px"
+              autosize
+              v-model="submitForm.details.describe"
+              placeholder="请输入备注描述"
+            >
+            </el-input>
+          </el-form-item>
           <el-divider content-position="center">项目简介</el-divider>
           <div v-for="(item, index) in submitForm.details.introduce" :key="index">
             <el-form-item :label="`项目标题${index + 1}`">
@@ -230,6 +257,23 @@
             >
             </el-input>
           </el-form-item>
+          <!-- 图片上传****************************************************** -->
+          <div class="imguploadbox">
+            <el-form-item label="公司头像">
+              <ImgUpload @imgUrls="cpLogoImg" :key="cpLogourl" />
+            </el-form-item>
+            <el-form-item label="logourl" class="imgurl">
+              <el-input
+                class="border_red"
+                type="textarea"
+                style="width:400px"
+                :rows="2"
+                placeholder="请输入公司头像地址"
+                v-model="submitForm.details.business.companyLogo"
+              />
+            </el-form-item>
+          </div>
+          <br />
           <el-form-item label="公司类型">
             <el-input
               type="textarea"
@@ -283,7 +327,8 @@
 
 <script>
 import ImgsUpload from '@/components/ImgsUpload'
-import { getDataList, insertData, editData, deleteData } from '../../api/business'
+import ImgUpload from '@/components/ImgUpload'
+import { getDataList, insertData, editData, deleteData, getSelectList } from '../../api/business'
 export default {
   data() {
     return {
@@ -309,6 +354,7 @@ export default {
       //       business: {
       //         //商家简介
       //         companyName: '', //公司名称
+      //         companyName: '', //公司名称
       //         type: '', //类型
       //         websiteUrl: '' //官网链接
       //       },
@@ -319,12 +365,14 @@ export default {
       //   }
       // ],
       // *******submitForm**************************************************
+      hangyeTypeList: [],
       submitForm: {
         title: '', //标题
         tags: '', //标签
         price: '', //价格
         potentialTenants: '', //招商对象
         zhaoshangType: '',
+        hangyeType: '', //行业分类
         details: {
           cover: [], //封面
           view_vol: '', //浏览量
@@ -336,9 +384,11 @@ export default {
               content: '' //项目内容
             }
           ],
+          describe: '',
           business: {
             //商家简介
             companyName: '', //公司名称
+            companyLogo: '', //公司logo
             type: '', //类型
             websiteUrl: '' //官网链接
           },
@@ -362,6 +412,7 @@ export default {
       showdialog: false,
       formtype: 'add',
       covercz: '',
+      cpLogourl: '',
       //设置row-key只展示一行
       expands: [], //只展开一行放入当前行id
       getRowKeys(row) {
@@ -400,16 +451,24 @@ export default {
       this.tableData = res.data.items
       this.tableLoading = false
     },
+    async getSelect() {
+      const { data: res } = await getSelectList()
+      if (res.code !== 0) return this.$message.error(res.error)
+      //console.log('ttt' + JSON.stringify(res.data[4].data))
+      this.hangyeTypeList = res.data[4].data
+    },
     quxiao() {
       this.showdialog = false
       this.formtype = 'add'
       this.covercz = new Date().getTime()
+      this.cpLogourl = new Date().getTime()
       this.submitForm = {
         title: '', //标题
         tags: '', //标签
         price: '', //价格
         potentialTenants: '', //招商对象
         zhaoshangType: '',
+        hangyeType: '', //行业分类
         details: {
           cover: [], //封面
           view_vol: '', //浏览量
@@ -421,9 +480,11 @@ export default {
               content: '' //项目内容
             }
           ],
+          describe: '',
           business: {
             //商家简介
             companyName: '', //公司名称
+            companyLogo: '', //公司logo
             type: '', //类型
             websiteUrl: '' //官网链接
           },
@@ -460,6 +521,9 @@ export default {
     coverImg(url) {
       this.submitForm.details.cover.push(url)
     },
+    cpLogoImg(url) {
+      this.submitForm.details.business.companyLogo = url
+    },
     addIntroduce() {
       this.submitForm.details.introduce.push({
         title: '',
@@ -495,6 +559,7 @@ export default {
     },
     async editForm() {
       this.subBtnLoading = true
+      console.log(this.submitForm)
       const { data: res } = await editData(this.submitForm)
       if (res.code !== 0) {
         this.$message.error(res.msg)
@@ -530,9 +595,11 @@ export default {
   },
   created() {
     this.getList()
+    this.getSelect()
   },
   components: {
-    ImgsUpload
+    ImgsUpload,
+    ImgUpload
   }
 }
 </script>
@@ -616,5 +683,12 @@ export default {
   width: 100%;
   display: flex;
   justify-content: flex-end;
+}
+.imgurl {
+  margin-left: 0;
+  margin-top: 40px;
+}
+.imguploadbox {
+  width: 100%;
 }
 </style>
