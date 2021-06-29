@@ -1,10 +1,33 @@
 <template>
   <div>
     <div class="topbox">
-      <el-button type="success" @click="showdialog = true">新增 +</el-button>
-      <div class="searchbox">
+      <div class="headers">
+        <el-button type="success" @click="showdialog = true">新增 +</el-button>
+        <el-switch
+          style="display: block"
+          v-model="isShelf"
+          active-color="#13ce66"
+          inactive-color="#ff4949"
+          active-text="显示全部"
+          inactive-text="显示未上线"
+          @change="qhsxxx"
+        >
+        </el-switch>
+      </div>
+      <!--<div class="searchbox">
         <el-input clearable placeholder="请输入内容" v-model="searchData"></el-input>
         <el-button type="primary" class="searchbtn">搜索</el-button>
+      </div>
+      -->
+      <div class="searchbox">
+        <el-input
+          clearable
+          @change="vagueSelect"
+          @clear="cleardata"
+          placeholder="请输入内容"
+          v-model="mhcxData"
+        ></el-input>
+        <el-button type="primary" class="searchbtn" @click="vagueSelect">搜索</el-button>
       </div>
     </div>
     <el-card class="box-card"
@@ -42,8 +65,14 @@
               <el-form-item label="招商对象：">
                 <span>{{ props.row.potentialTenants }}</span>
               </el-form-item>
-              <el-form-item label="招商类型：">
+              <!--<el-form-item label="招商类型：">
                 <span>{{ props.row.zhaoshangType | zstype }}</span>
+              </el-form-item>
+              -->
+              <el-form-item label="招商类型：">
+                <span v-for="(item, index) in zstypeList" :key="index" v-show="props.row.zhaoshangType == item.id">{{
+                  item.label
+                }}</span>
               </el-form-item>
               <el-form-item label="收藏量：">
                 <span>{{ props.row.details.follow_vol }}</span>
@@ -52,7 +81,7 @@
                 <span>{{ props.row.details.view_vol }}</span>
               </el-form-item>
               <el-form-item label="操作人：">
-                <span>{{ props.row.details.something.adminName }}</span>
+                <span>{{ props.row.details.something != null ? props.row.details.something.adminName : '' }}</span>
               </el-form-item>
               <el-form-item label="行业类型：">
                 <span v-for="(item, index) in hangyeTypeList" :key="index" v-show="props.row.hangyeType == item.id">{{
@@ -81,6 +110,12 @@
               <el-form-item label="官网链接：">
                 <span>{{ props.row.details.business.websiteUrl }}</span>
               </el-form-item>
+              <el-form-item label="手机号">
+                <span>{{ props.row.details.business.phone }}</span>
+              </el-form-item>
+              <el-form-item label="公众号">
+                <span>{{ props.row.details.business.wechatnum }}</span>
+              </el-form-item>
               <el-divider content-position="left">分 享</el-divider>
               <el-form-item label="分享标题：">
                 <span>{{ props.row.details.share.title }}</span>
@@ -108,6 +143,31 @@
         <el-table-column label="价格" prop="price"> </el-table-column>
         <el-table-column label="商家" prop="details.business.companyName"> </el-table-column>
         <el-table-column label="招商对象" prop="potentialTenants"> </el-table-column>
+        <el-table-column label="是否上线" width="110px">
+          <template slot-scope="scope">
+            <!--<Checkboxs v-show="isshowcheckbox" :key="checkboxcj" :scopes="scope.row" @getpiliangmid="getpiliangmid" />-->
+            <el-button
+              class="shangxianxiaxianbtn"
+              type="success"
+              @click="exithidetype(scope.row)"
+              v-if="scope.row.hide == 0"
+              plain
+              :disabled="isHideOnline"
+              size="mini"
+              >已上线</el-button
+            >
+            <el-button
+              class="shangxianxiaxianbtn"
+              type="warning"
+              @click="exithidetype(scope.row)"
+              v-if="scope.row.hide == 1"
+              plain
+              :disabled="isHideOnline"
+              size="mini"
+              >已下线</el-button
+            >
+          </template>
+        </el-table-column>
         <el-table-column label="操作" width="160">
           <template slot-scope="props">
             <el-button size="mini" @click="editfn(props.row)">编辑</el-button>
@@ -175,7 +235,7 @@
           </el-form-item>
           <el-form-item label="招商类型">
             <el-select style="width:260px" v-model="submitForm.zhaoshangType" placeholder="请选择">
-              <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"> </el-option>
+              <el-option v-for="item in zstypeList" :key="item.id" :label="item.label" :value="item.id"> </el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="招商对象">
@@ -209,7 +269,7 @@
           </el-form-item>
           <el-divider content-position="center">项目简介</el-divider>
           <div v-for="(item, index) in submitForm.details.introduce" :key="index">
-            <el-form-item :label="`项目标题${index + 1}`">
+            <el-form-item :label="`项目标题`">
               <el-input
                 type="textarea"
                 style="width:680px"
@@ -219,7 +279,7 @@
               >
               </el-input>
             </el-form-item>
-            <el-form-item :label="`项目内容${index + 1}`">
+            <el-form-item :label="`项目内容`">
               <el-input
                 type="textarea"
                 style="width:680px"
@@ -228,22 +288,6 @@
                 placeholder="请输入项目内容"
               >
               </el-input>
-              <el-button
-                @click="delIntroduce(index)"
-                v-show="index != 0"
-                type="danger"
-                size="mini"
-                style="margin-left:10px;"
-                >-</el-button
-              >
-              <el-button
-                @click="addIntroduce"
-                v-show="index == submitForm.details.introduce.length - 1"
-                type="success"
-                size="mini"
-                style="margin-left:10px;"
-                >+</el-button
-              >
             </el-form-item>
           </div>
           <el-divider content-position="center">商家简介</el-divider>
@@ -294,6 +338,26 @@
             >
             </el-input>
           </el-form-item>
+          <el-form-item label="手机号">
+            <el-input
+              type="textarea"
+              style="width:680px"
+              autosize
+              v-model="submitForm.details.business.phone"
+              placeholder="手机号"
+            >
+            </el-input>
+          </el-form-item>
+          <el-form-item label="公众号">
+            <el-input
+              type="textarea"
+              style="width:680px"
+              autosize
+              v-model="submitForm.details.business.wechatnum"
+              placeholder="公众号"
+            >
+            </el-input>
+          </el-form-item>
           <el-divider content-position="center">分享</el-divider>
           <el-form-item label="分享标题">
             <el-input
@@ -328,7 +392,15 @@
 <script>
 import ImgsUpload from '@/components/ImgsUpload'
 import ImgUpload from '@/components/ImgUpload'
-import { getDataList, insertData, editData, deleteData, getSelectList } from '../../api/business'
+import {
+  getDataList,
+  insertData,
+  editData,
+  deleteData,
+  getHideData,
+  getSelectList,
+  changeHideType
+} from '../../api/business'
 export default {
   data() {
     return {
@@ -365,7 +437,11 @@ export default {
       //   }
       // ],
       // *******submitForm**************************************************
+      something: {
+        adminName: ''
+      },
       hangyeTypeList: [],
+      zstypeList: [],
       submitForm: {
         title: '', //标题
         tags: '', //标签
@@ -373,6 +449,7 @@ export default {
         potentialTenants: '', //招商对象
         zhaoshangType: '',
         hangyeType: '', //行业分类
+        hide: 1, // 上线下线
         details: {
           cover: [], //封面
           view_vol: '', //浏览量
@@ -390,7 +467,9 @@ export default {
             companyName: '', //公司名称
             companyLogo: '', //公司logo
             type: '', //类型
-            websiteUrl: '' //官网链接
+            websiteUrl: '', //官网链接
+            phone: '', //手机号
+            wechatnum: '' //公众号
           },
           share: {
             title: '',
@@ -406,10 +485,19 @@ export default {
       searchData: '',
       queryinfo: {
         limit: 10,
-        page: 1
+        page: 1,
+        hidetype: 'all',
+        keyword: ''
       },
       totals: 0,
       showdialog: false,
+      isShelf: true, // 显示全部和未上线
+      plsxxxlist: [],
+      plsxxxlistun: [],
+      checkboxcj: '',
+      isHideOnline: true,
+      isshowcheckbox: false,
+      mhcxData: '',
       formtype: 'add',
       covercz: '',
       cpLogourl: '',
@@ -457,6 +545,30 @@ export default {
       //console.log('ttt' + JSON.stringify(res.data[4].data))
       this.hangyeTypeList = res.data[4].data
     },
+    async getzsTySelect() {
+      const { data: res } = await getSelectList()
+      if (res.code !== 0) return this.$message.error(res.error)
+      //console.log('ttt' + JSON.stringify(res.data[5].data))
+      this.zstypeList = res.data[5].data
+    },
+    async getHideList() {
+      this.tableLoading = true
+      let params = {
+        page: this.queryinfo.page,
+        limit: this.queryinfo.limit,
+        keyword: this.mohuchaxunData,
+        hidetype: this.hidetype
+      }
+      const { data: res } = await getHideData(params)
+      if (res.code !== 0) {
+        this.$message.error(res.msg)
+        this.tableLoading = false
+        return
+      }
+      this.totals = res.data.totalCount
+      this.tableData = res.data.items
+      this.tableLoading = false
+    },
     quxiao() {
       this.showdialog = false
       this.formtype = 'add'
@@ -486,7 +598,9 @@ export default {
             companyName: '', //公司名称
             companyLogo: '', //公司logo
             type: '', //类型
-            websiteUrl: '' //官网链接
+            websiteUrl: '', //官网链接
+            phone: '', //手机号
+            wechatnum: '' //公众号
           },
           share: {
             title: '',
@@ -500,11 +614,81 @@ export default {
       }
       this.showImgBtn = false
     },
+    qhsxxx() {
+      if (this.isShelf == false) {
+        this.queryinfo = {
+          hidetype: 'hide',
+          limit: 10,
+          page: 1,
+          keyword: this.mhcxData
+        }
+        this.getHideList()
+      } else {
+        this.queryinfo = {
+          hidetype: 'all',
+          limit: 10,
+          page: 1,
+          keyword: this.mhcxData
+        }
+        this.getList()
+      }
+    },
+    cleardata() {
+      // 点框内×清除搜索
+      this.queryinfo.keyword = ''
+      this.getList()
+    },
+    vagueSelect() {
+      // 搜索
+      this.queryinfo.keyword = this.mhcxData
+      this.getList()
+    },
+    //批量上线/下线
+    getpiliangmid(scope) {
+      let hide = !scope.hide
+      if (hide == 0) {
+        this.plsxxxlistun.push(scope.id)
+      } else if (hide == 1) {
+        this.plsxxxlist.push(scope.id)
+      }
+    },
+    //批量提交
+    async pltjhide() {
+      const { data: res } = await changeHideType(this.plsxxxlist, this.plsxxxlistun)
+      if (res.code !== 0) return this.$message.error(res.msg)
+      this.$message.success(res.msg)
+      this.quxiaopltj()
+    },
+    //单独修改在线状态
+    async exithidetype(scope) {
+      let hide = scope.hide
+      if (hide == 0) {
+        this.plsxxxlist.push(scope.id)
+      } else if (hide == 1) {
+        this.plsxxxlistun.push(scope.id)
+      }
+      const { data: res } = await changeHideType(this.plsxxxlist, this.plsxxxlistun)
+      if (res.code !== 0) return this.$message.error(res.msg)
+      this.$message.success(res.msg)
+      this.getList()
+      this.quxiaopltj()
+    },
+    quxiaopltj() {
+      this.plsxxxlist = []
+      this.plsxxxlistun = []
+      this.isshowcheckbox = false
+      // this.$refs.watchkeyword.qxclose()
+      this.checkboxcj = new Date().getTime()
+      this.getList()
+    },
     editfn(row) {
       this.formtype = 'edit'
       this.showdialog = true
       this.submitForm = row
       this.showImgBtn = true
+      this.submitForm.details.something = {
+        adminName: `${window.sessionStorage.username}(添加)`
+      }
     },
     async deletefn(row) {
       this.delbtnloading = true
@@ -596,6 +780,7 @@ export default {
   created() {
     this.getList()
     this.getSelect()
+    this.getzsTySelect()
   },
   components: {
     ImgsUpload,
@@ -639,9 +824,8 @@ export default {
   margin-bottom: 0;
   width: 50%;
 }
-
 .topbox {
-  margin-top: 10px;
+  margin-top: 5px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -650,6 +834,14 @@ export default {
     align-items: center;
     .searchbtn {
       margin: 0 0 0 10px;
+    }
+  }
+  .headers {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    .el-switch {
+      margin-left: 20px;
     }
   }
 }
@@ -677,7 +869,9 @@ export default {
     width: 800px;
   }
 }
-
+/deep/.shangxianxiaxianbtn {
+  margin-left: 10px;
+}
 .el-pagination-box {
   margin-top: 20px;
   width: 100%;

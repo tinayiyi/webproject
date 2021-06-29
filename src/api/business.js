@@ -36,3 +36,28 @@ export function getSelectList() {
     method: 'get'
   })
 }
+export function getHideData(params) {
+  let page = params.page
+  let limit = params.limit
+  let keyword = params.keyword
+  return request({
+    url: `/mgrzhaoshang`,
+    method: 'get',
+    params: {
+      limit: limit,
+      page: page,
+      keyword: keyword,
+      hidetype: 'hide'
+    }
+  })
+}
+export function changeHideType(hide, unhide) {
+  return request({
+    url: `/mgrzhaoshang/hide`,
+    method: 'put',
+    data: {
+      hide: hide,
+      unhide: unhide
+    }
+  })
+}
