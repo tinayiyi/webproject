@@ -23,7 +23,7 @@
               inactive-color="#13ce66"
               active-text="已使用"
               inactive-text="未使用"
-              :disabled="scope.row.unUsedFlag"
+              :disabled="!scope.row.unUsedFlag"
               @change="changeUsedFlag(scope.row)"
             >
             </el-switch>
@@ -33,7 +33,7 @@
           <template slot-scope="scope">
             <el-button
               ref="scbtns"
-              :disabled="scope.row.deleFlag"
+              :disabled="!scope.row.deleFlag"
               type="danger"
               size="mini"
               @click="deletewz(scope.row)"
@@ -211,13 +211,13 @@ export default {
       this.queryinfo.page = res.data.curPage
       this.totals = res.data.totalCount
       this.upLimit = res.data.upLimit
-      console.log(res.data)
-      if (res.data.deleLimit === true) {
+      //console.log(res.data)
+      if (res.data.deleLimit === 1) {
         tables.map(item => {
           item.deleFlag = true
         })
       }
-      if (res.data.usedLimit === true) {
+      if (res.data.usedLimit === 1) {
         tables.map(item => {
           item.unUsedFlag = true
         })

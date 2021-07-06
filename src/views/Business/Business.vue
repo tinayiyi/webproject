@@ -545,6 +545,7 @@ export default {
       this.totals = res.data.totalCount
       this.tableData = res.data.items
       this.tableLoading = false
+      console.log(res.data)
     },
     async getSelect() {
       const { data: res } = await getSelectList()

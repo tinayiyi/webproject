@@ -38,8 +38,8 @@ Vue.filter('dateFormat', function(originVal) {
 Vue.filter('date', originVal => {
   const dt = new Date(originVal * 1000)
   const y = dt.getFullYear()
-  const m = dt.getMonth()
-  const d = dt.getDay()
+  const m = (dt.getMonth() + 1 + '').padStart(2, '0')
+  const d = (dt.getDate() + '').padStart(2, '0')
   const hh = (dt.getHours() + '').padStart(2, '0')
   const mm = (dt.getMinutes() + '').padStart(2, '0')
   return `${y}/${m}/${d} ${hh}:${mm}`

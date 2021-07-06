@@ -24,6 +24,7 @@
       <el-table-column prop="activity" label="会议数量"> </el-table-column>
       <el-table-column prop="zixun" label="资讯数量"> </el-table-column>
       <el-table-column prop="website" label="网址数量"> </el-table-column>
+      <el-table-column prop="zhaoshang" label="招商数量"> </el-table-column>
     </el-table>
   </el-card>
 </template>
