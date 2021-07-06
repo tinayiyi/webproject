@@ -81,7 +81,7 @@
                 <span>{{ props.row.details.view_vol }}</span>
               </el-form-item>
               <el-form-item label="操作人：">
-                <span>{{ props.row.details.something != null ? props.row.details.something.adminName : '' }}</span>
+                <span v-for="(item, index) in props.row.details.something" :key="index">{{ item.adminName }} -- </span>
               </el-form-item>
               <el-form-item label="行业类型：">
                 <span v-for="(item, index) in hangyeTypeList" :key="index" v-show="props.row.hangyeType == item.id">{{
@@ -145,7 +145,6 @@
         <el-table-column label="招商对象" prop="potentialTenants"> </el-table-column>
         <el-table-column label="是否上线" width="110px">
           <template slot-scope="scope">
-            <!--<Checkboxs v-show="isshowcheckbox" :key="checkboxcj" :scopes="scope.row" @getpiliangmid="getpiliangmid" />-->
             <el-button
               class="shangxianxiaxianbtn"
               type="success"
@@ -170,8 +169,15 @@
         </el-table-column>
         <el-table-column label="操作" width="160">
           <template slot-scope="props">
-            <el-button size="mini" @click="editfn(props.row)">编辑</el-button>
-            <el-button :loading="delbtnloading" size="mini" type="danger" @click="deletefn(props.row)">删除</el-button>
+            <el-button size="mini" :disabled="isEditOnline" @click="editfn(props.row)">编辑</el-button>
+            <el-button
+              :loading="delbtnloading"
+              size="mini"
+              type="danger"
+              :disabled="isDeleOnline"
+              @click="deletefn(props.row)"
+              >删除</el-button
+            >
           </template></el-table-column
         >
       </el-table>
@@ -437,9 +443,6 @@ export default {
       //   }
       // ],
       // *******submitForm**************************************************
-      something: {
-        adminName: ''
-      },
       hangyeTypeList: [],
       zstypeList: [],
       submitForm: {
@@ -476,9 +479,11 @@ export default {
             text: '',
             type: 'zhaoshang'
           },
-          something: {
-            adminName: window.sessionStorage.username
-          }
+          something: [
+            {
+              adminName: window.sessionStorage.username
+            }
+          ]
         }
       },
       // **************************************************************
@@ -495,7 +500,9 @@ export default {
       plsxxxlist: [],
       plsxxxlistun: [],
       checkboxcj: '',
-      isHideOnline: true,
+      isHideOnline: true, // 权限
+      isDeleOnline: true,
+      isEditOnline: true,
       isshowcheckbox: false,
       mhcxData: '',
       formtype: 'add',
@@ -607,9 +614,11 @@ export default {
             text: '',
             type: 'zhaoshang'
           },
-          something: {
-            adminName: window.sessionStorage.username
-          }
+          something: [
+            {
+              adminName: window.sessionStorage.username
+            }
+          ]
         }
       }
       this.showImgBtn = false
@@ -686,9 +695,10 @@ export default {
       this.showdialog = true
       this.submitForm = row
       this.showImgBtn = true
-      this.submitForm.details.something = {
-        adminName: `${window.sessionStorage.username}(添加)`
+      if (this.submitForm.details.something.adminName != null && this.submitForm.details.something.adminName != '') {
+        this.submitForm.details.something = [{ adminName: this.submitForm.details.something.adminName }]
       }
+      //this.submitForm.details.something.push({ adminName: `${window.sessionStorage.username}(修改)` })
     },
     async deletefn(row) {
       this.delbtnloading = true
@@ -719,10 +729,10 @@ export default {
     },
     formSubmit() {
       if (this.formtype == 'add') {
-        this.submitForm.details.something.adminName = `${window.sessionStorage.username}(添加)`
+        this.submitForm.details.something.push({ adminName: `${window.sessionStorage.username}(添加)` })
         this.insertForm()
       } else {
-        this.submitForm.details.something.adminName = `${window.sessionStorage.username}(修改)`
+        this.submitForm.details.something.push({ adminName: `${window.sessionStorage.username}(修改)` })
         this.editForm()
       }
       setTimeout(() => {
@@ -743,7 +753,6 @@ export default {
     },
     async editForm() {
       this.subBtnLoading = true
-      console.log(this.submitForm)
       const { data: res } = await editData(this.submitForm)
       if (res.code !== 0) {
         this.$message.error(res.msg)
@@ -778,6 +787,23 @@ export default {
     }
   },
   created() {
+    const limit = JSON.parse(window.sessionStorage.getItem('limits'))
+    //console.log(limit)
+    if (limit.zs_edit) {
+      this.isEditOnline = false
+    } else {
+      this.isEditOnline = true
+    }
+    if (limit.zs_dele) {
+      this.isDeleOnline = false
+    } else {
+      this.isDeleOnline = true
+    }
+    if (limit.zs_hide) {
+      this.isHideOnline = false
+    } else {
+      this.isHideOnline = true
+    }
     this.getList()
     this.getSelect()
     this.getzsTySelect()

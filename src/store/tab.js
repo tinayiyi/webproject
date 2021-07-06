@@ -21,8 +21,8 @@ export default {
   mutations: {
     setMenu(state) {
       let role = parseInt(window.sessionStorage.getItem('role'))
-      let lmap = JSON.parse(window.sessionStorage.lmap)
-      let limit = JSON.parse(window.sessionStorage.limits)
+      //let lmap = JSON.parse(window.sessionStorage.lmap)
+      let limit = JSON.parse(window.sessionStorage.getItem('limits'))
 
       let routers = [
         {
@@ -76,7 +76,7 @@ export default {
         }
       ]
 
-      if ((limit & lmap.m_count) == lmap.m_count) {
+      if (limit.m_count) {
         routers.push({
           path: '/quantityStatistics',
           name: 'quantityStatistics',
@@ -86,7 +86,7 @@ export default {
         })
       }
 
-      if ((limit & lmap.m_app) == lmap.m_app) {
+      if (limit.m_app) {
         routers.push({
           path: '/packageUpload',
           name: 'packageUpload',
@@ -139,7 +139,7 @@ export default {
       router.addRoutes(currentMenu)
     },
     selectMenu(state, val) {
-      console.log(val)
+      //console.log(val)
       if (val.name !== 'home') {
         state.currentMenu = val
         let res = state.tabsList.findIndex(item => item.name === val.name)

@@ -1098,19 +1098,19 @@ export default {
     }
   },
   created() {
-    const limit = window.sessionStorage.getItem('limits')
-    const lmap = JSON.parse(window.sessionStorage.getItem('lmap'))
-    if ((limit & lmap.m_edit) == lmap.m_edit) {
+    const limit = JSON.parse(window.sessionStorage.getItem('limits'))
+    //const lmap = JSON.parse(window.sessionStorage.getItem('lmap'))
+    if (limit.m_edit) {
       this.isEditOnline = false
     } else {
       this.isEditOnline = true
     }
-    if ((limit & lmap.m_dele) == lmap.m_dele) {
+    if (limit.m_dele) {
       this.isDeleOnline = false
     } else {
       this.isDeleOnline = true
     }
-    if ((limit & lmap.m_hide) == lmap.m_hide) {
+    if (limit.m_hide) {
       this.isHideOnline = false
     } else {
       this.isHideOnline = true

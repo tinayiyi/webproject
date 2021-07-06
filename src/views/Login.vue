@@ -52,14 +52,14 @@ export default {
         password: this.$md5(this.loginForm.password)
       }
       const { data: res } = await Login(log)
-      console.log(res)
+      //console.log(res)
       if (res.code !== 0) return this.$message.error(res.msg)
       window.sessionStorage.setItem('password', log.password)
       this.loginobj = res.data.item
       window.sessionStorage.setItem('username', this.loginForm.name)
       window.sessionStorage.setItem('X-token', res.token)
       window.sessionStorage.setItem('role', this.loginobj.role)
-      window.sessionStorage.setItem('limits', res.data.item.limits)
+      window.sessionStorage.setItem('limits', JSON.stringify(res.data.item.limits))
       window.sessionStorage.setItem('lmap', JSON.stringify(res.data.lmap))
       // this.$store.commit('clearMenu')
       this.$store.commit('setMenu')

@@ -2,7 +2,7 @@
   <el-menu
     :collapse="isCollapse"
     router
-    default-active="2"
+    :default-active="this.$route.path"
     class="el-menu-vertical-demo"
     background-color="#485460"
     text-color="#fff"

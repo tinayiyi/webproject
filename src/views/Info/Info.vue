@@ -902,7 +902,7 @@ export default {
       }
       let type = 'info'
       const { data: res } = await getTitleSimilarity(data, type)
-      console.log(res)
+      //console.log(res)
       if (res.code !== 0) {
         this.$message.error(res.msg)
         this.forceData = res.data
@@ -920,19 +920,18 @@ export default {
     }
   },
   created() {
-    const limit = window.sessionStorage.getItem('limits')
-    const lmap = JSON.parse(window.sessionStorage.getItem('lmap'))
-    if ((limit & lmap.z_edit) == lmap.z_edit) {
+    const limit = JSON.parse(window.sessionStorage.getItem('limits'))
+    if (limit.z_edit) {
       this.isEditOnline = false
     } else {
       this.isEditOnline = true
     }
-    if ((limit & lmap.z_dele) == lmap.z_dele) {
+    if (limit.z_dele) {
       this.isDeleOnline = false
     } else {
       this.isDeleOnline = true
     }
-    if ((limit & lmap.z_hide) == lmap.z_hide) {
+    if (limit.z_hide) {
       this.isHideOnline = false
     } else {
       this.isHideOnline = true

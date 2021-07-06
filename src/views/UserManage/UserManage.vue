@@ -46,6 +46,14 @@
           </div>
         </div>
         <div class="tpunbox zxbox">
+          <el-tag type="success">招商</el-tag>
+          <div>
+            <el-checkbox-group v-model="checkboxGroupzs" size="mini">
+              <el-checkbox-button v-for="city in cities" :label="city" :key="city">{{ city }}</el-checkbox-button>
+            </el-checkbox-group>
+          </div>
+        </div>
+        <div class="tpunbox zxbox">
           <el-tag type="warning">网址</el-tag>
           <div>
             <el-checkbox-group v-model="checkboxGroupwz" size="mini">
@@ -126,6 +134,7 @@ export default {
       jurisdiction: false,
       checkboxGrouply: [],
       checkboxGroupzx: [],
+      checkboxGroupzs: [],
       checkboxGroupwz: [],
       checkboxGroupluyou: [],
       cities: cityOptions,
@@ -228,96 +237,134 @@ export default {
       // if (row.role === 0) return this.$message.warning('无法修改超级管理员权限')
       this.jurisdiction = true
       this.userid = row.id
-      let limit = row.limits
-      const lmap = JSON.parse(window.sessionStorage.getItem('lmap'))
-      if ((limit & lmap.m_edit) == lmap.m_edit) {
+      //const lmap = JSON.parse(window.sessionStorage.getItem('lmap'))
+      //const limits = window.sessionStorage.getItem('limits')
+      let limits = row.limits
+      //console.log(limits)
+      if (limits.m_edit) {
         this.checkboxGrouply.push('编辑')
       }
-      if ((limit & lmap.m_dele) == lmap.m_dele) {
+      if (limits.m_dele) {
         this.checkboxGrouply.push('删除')
       }
-      if ((limit & lmap.m_hide) == lmap.m_hide) {
+      if (limits.m_hide) {
         this.checkboxGrouply.push('上线/下线')
       }
-      if ((limit & lmap.z_edit) == lmap.z_edit) {
+      if (limits.z_edit) {
         this.checkboxGroupzx.push('编辑')
       }
-      if ((limit & lmap.z_dele) == lmap.z_dele) {
+      if (limits.z_dele) {
         this.checkboxGroupzx.push('删除')
       }
-      if ((limit & lmap.z_hide) == lmap.z_hide) {
+      if (limits.z_hide) {
         this.checkboxGroupzx.push('上线/下线')
       }
-      if ((limit & lmap.w_used) == lmap.w_used) {
+      if (limits.zs_edit) {
+        this.checkboxGroupzs.push('编辑')
+      }
+      if (limits.zs_dele) {
+        this.checkboxGroupzs.push('删除')
+      }
+      if (limits.zs_hide) {
+        this.checkboxGroupzs.push('上线/下线')
+      }
+      if (limits.w_used) {
         this.checkboxGroupwz.push('修改状态')
       }
-      if ((limit & lmap.w_up) == lmap.w_up) {
+      if (limits.w_up) {
         this.checkboxGroupwz.push('上传')
       }
-      if ((limit & lmap.w_dele) == lmap.w_dele) {
+      if (limits.w_dele) {
         this.checkboxGroupwz.push('删除')
       }
-      if ((limit & lmap.m_app) == lmap.m_app) {
+      if (limits.m_app) {
         this.checkboxGroupluyou.push('安装包上传页')
       }
-      if ((limit & lmap.m_count) == lmap.m_count) {
+      if (limits.m_count) {
         this.checkboxGroupluyou.push('统计页')
       }
     },
     handleClose() {
       this.jurisdiction = false
       this.checkboxGroupzx = []
+      this.checkboxGroupzs = []
       this.checkboxGrouply = []
       this.checkboxGroupwz = []
       this.checkboxGroupluyou = []
     },
     async xiugaiquanxian() {
-      let lmap = JSON.parse(window.sessionStorage.getItem('lmap'))
-      let limits = 0
+      //let lmap = JSON.parse(window.sessionStorage.getItem('lmap'))
+      let limits = new Object()
+      limits.m_edit = 0
+      limits.m_dele = 0
+      limits.m_hide = 0
+      limits.z_edit = 0
+      limits.z_dele = 0
+      limits.z_hide = 0
+      limits.zs_edit = 0
+      limits.zs_dele = 0
+      limits.zs_hide = 0
+      limits.w_up = 0
+      limits.w_dele = 0
+      limits.w_used = 0
+      limits.m_app = 0
+      limits.m_count = 0
       this.checkboxGrouply.map(arr => {
         if (arr == '编辑') {
-          limits = limits + lmap.m_edit
+          limits.m_edit = 1
         } else if (arr == '删除') {
-          limits = limits + lmap.m_dele
+          limits.m_dele = 1
         } else if (arr == '上线/下线') {
-          limits = limits + lmap.m_hide
+          limits.m_hide = 1
         }
       })
       this.checkboxGroupzx.map(arr => {
         if (arr == '编辑') {
-          limits = limits + lmap.z_edit
+          limits.z_edit = 1
         } else if (arr == '删除') {
-          limits = limits + lmap.z_dele
+          limits.z_dele = 1
         } else if (arr == '上线/下线') {
-          limits = limits + lmap.z_hide
+          limits.z_hide = 1
+        }
+      })
+      this.checkboxGroupzs.map(arr => {
+        if (arr == '编辑') {
+          limits.zs_edit = 1
+        } else if (arr == '删除') {
+          limits.zs_dele = 1
+        } else if (arr == '上线/下线') {
+          limits.zs_hide = 1
         }
       })
       this.checkboxGroupwz.map(arr => {
         if (arr == '上传') {
-          limits = limits + lmap.w_up
+          limits.w_up = 1
         } else if (arr == '删除') {
-          limits = limits + lmap.w_dele
+          limits.w_dele = 1
         } else if (arr == '修改状态') {
-          limits = limits + lmap.w_used
+          limits.w_used = 1
         }
       })
       this.checkboxGroupluyou.map(arr => {
         if (arr == '安装包上传页') {
-          limits = limits + lmap.m_app
+          limits.m_app = 1
         } else if (arr == '统计页') {
-          limits = limits + lmap.m_count
+          limits.m_count = 1
         }
       })
+      //console.log(limits)
       let data = {
         limits: limits,
         id: this.userid
       }
       const { data: res } = await Distribution(data)
       if (res.code != 0) return this.$message.error(res.msg)
+      window.sessionStorage.setItem('limits', JSON.stringify(limits))
       this.jurisdiction = false
       this.getUserList()
       this.$message.success(res.msg)
       this.checkboxGroupzx = []
+      this.checkboxGroupzs = []
       this.checkboxGrouply = []
       this.checkboxGroupwz = []
       this.checkboxGroupluyou = []
