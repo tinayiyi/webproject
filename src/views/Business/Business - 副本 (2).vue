@@ -791,38 +791,8 @@ export default {
       this.submitForm.details.introduce.splice(i, 1)
     },
     formSubmit() {
-      if (this.submitForm.title == '' || this.submitForm.title == null) {
-        this.$message.error('请填写标题')
-      } else if (this.submitForm.details.cover.length == 0) {
-        this.$message.error('请上传图片')
-      } else if (this.submitForm.details.follow_vol == '') {
-        this.$message.error('请填写收藏量')
-      } else if (this.submitForm.details.view_vol == '') {
-        this.$message.error('请填写浏览量')
-      } else if (this.submitForm.price == '' || this.submitForm.price == null) {
-        this.$message.error('请填写价格')
-      } else if (this.submitForm.zhaoshangType == '' || this.submitForm.zhaoshangType == null) {
-        this.$message.error('请选择招商类型')
-      } else if (this.submitForm.potentialTenants == '' || this.submitForm.potentialTenants == null) {
-        this.$message.error('请填写招商对象')
-      } else if (this.submitForm.tags == '' || this.submitForm.tags == null) {
-        this.$message.error('请填写标签')
-      } else if (this.submitForm.hangyeType > 0 || this.hangyeTypes == '' || this.submitForm.hangyeType == '') {
+      if (this.submitForm.hangyeType > 0 || this.hangyeTypes == '' || this.submitForm.hangyeType == '') {
         this.$message.error('请选择行业')
-      } else if (this.submitForm.details.introduce[0].title == '') {
-        this.$message.error('请填写项目标题')
-      } else if (this.submitForm.details.introduce[0].content == '') {
-        this.$message.error('请填写项目内容')
-      } else if (this.submitForm.details.business.companyName == '') {
-        this.$message.error('请填写公司名称')
-      } else if (this.submitForm.details.business.companyLogo.length == 0) {
-        this.$message.error('请上传公司logo')
-      } else if (this.submitForm.details.business.type == '') {
-        this.$message.error('请输入公司类型')
-      } else if (this.submitForm.details.share.title == '') {
-        this.$message.error('请输入分享的标题')
-      } else if (this.submitForm.details.share.text == '') {
-        this.$message.error('请输入分享的内容')
       } else {
         if (this.formtype == 'add') {
           this.submitForm.details.something.push({ adminName: `${window.sessionStorage.username}(添加)` })

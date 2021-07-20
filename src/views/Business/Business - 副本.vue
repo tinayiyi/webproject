@@ -83,19 +83,10 @@
               <el-form-item label="操作人：">
                 <span v-for="(item, index) in props.row.details.something" :key="index">{{ item.adminName }} -- </span>
               </el-form-item>
-              <!--
               <el-form-item label="行业类型：">
                 <span v-for="(item, index) in hangyeTypeList" :key="index" v-show="props.row.hangyeType == item.id">{{
                   item.label
                 }}</span>
-              </el-form-item>
-              -->
-              <el-form-item label="行业类型：">
-                <span v-for="(item, index) in zsHyTpeList" :key="item.id">
-                  <span v-for="i in zsHyTpeList[index].data" :key="i.id" v-show="props.row.hangyeType == i.id"
-                    >{{ item.label }} - {{ i.label }}</span
-                  >
-                </span>
               </el-form-item>
               <el-form-item label="备注描述：">
                 <span>{{ props.row.details.describe }}</span>
@@ -267,12 +258,8 @@
             </el-input>
           </el-form-item>
           <el-form-item label="行业:">
-            <el-select style="width:260px" v-model="hangyeTypes" placeholder="请选择" @change="childSelect">
-              <el-option v-for="item in zsHyTpeList" :key="item.id + ''" :label="item.label" :value="item.id + ''">
-              </el-option>
-            </el-select>
             <el-select style="width:260px" v-model="submitForm.hangyeType" placeholder="请选择">
-              <el-option v-for="item in childHyList" :key="item.id + ''" :label="item.label" :value="item.id + ''">
+              <el-option v-for="item in hangyeTypeList" :key="item.id + ''" :label="item.label" :value="item.id + ''">
               </el-option>
             </el-select>
           </el-form-item>
@@ -456,12 +443,8 @@ export default {
       //   }
       // ],
       // *******submitForm**************************************************
-      hangyeTypes: '',
       hangyeTypeList: [],
       zstypeList: [],
-      hyTypeList: [],
-      zsHyTpeList: [],
-      childHyList: [],
       submitForm: {
         title: '', //标题
         tags: '', //标签
@@ -562,7 +545,7 @@ export default {
       this.totals = res.data.totalCount
       this.tableData = res.data.items
       this.tableLoading = false
-      //console.log(res.data)
+      console.log(res.data)
     },
     async getSelect() {
       const { data: res } = await getSelectList()
@@ -575,18 +558,6 @@ export default {
       if (res.code !== 0) return this.$message.error(res.error)
       //console.log('ttt' + JSON.stringify(res.data[5].data))
       this.zstypeList = res.data[5].data
-    },
-    async getHySelect() {
-      const { data: res } = await getSelectList()
-      if (res.code !== 0) return this.$message.error(res.error)
-      //console.log('ttt' + JSON.stringify(res.data[6].data))
-      this.zsHyTpeList = res.data[6].data
-      // var datares = this.zsHyTpeList
-      // for (var i = 0; i < datares.length; i++) {
-      //   for (var j in datares[i]) {
-      //     console.log(j + ':' + datares[i][j])
-      //   }
-      // }
     },
     async getHideList() {
       this.tableLoading = true
@@ -605,20 +576,6 @@ export default {
       this.totals = res.data.totalCount
       this.tableData = res.data.items
       this.tableLoading = false
-    },
-    childSelect(val) {
-      if (val) {
-        var datares = this.zsHyTpeList
-        //console.log(JSON.stringify(datares))
-        for (var i = 0; i < datares.length; i++) {
-          //console.log('d:' + datares[i].id)
-          if (datares[i].id == val) {
-            this.childHyList = datares[i].data
-            this.submitForm.hangyeType = ''
-          }
-        }
-        //console.log(this.childHyList)
-      }
     },
     quxiao() {
       this.showdialog = false
@@ -739,29 +696,10 @@ export default {
       this.showdialog = true
       this.submitForm = row
       this.showImgBtn = true
-      if (!this.submitForm.details.something) {
-        this.submitForm.details.something = [{ adminName: `${window.sessionStorage.username}(修改)` }]
-      } else if (
-        this.submitForm.details.something.adminName != null &&
-        this.submitForm.details.something.adminName != ''
-      ) {
+      if (this.submitForm.details.something.adminName != null && this.submitForm.details.something.adminName != '') {
         this.submitForm.details.something = [{ adminName: this.submitForm.details.something.adminName }]
       }
-      this.hangyeTypes = ''
       //this.submitForm.details.something.push({ adminName: `${window.sessionStorage.username}(修改)` })
-      var datares = this.zsHyTpeList
-      var val = this.submitForm.hangyeType
-      //console.log(val)
-      for (var i = 0; i < datares.length; i++) {
-        //console.log('d:' + datares[i].data)
-        for (var j = 0; j < datares[i].data.length; j++) {
-          if (datares[i].data[j].id == val) {
-            this.hangyeTypes = datares[i].id
-            this.childHyList = datares[i].data
-            //console.log(this.hangyeTypes)
-          }
-        }
-      }
     },
     async deletefn(row) {
       this.delbtnloading = true
@@ -791,51 +729,17 @@ export default {
       this.submitForm.details.introduce.splice(i, 1)
     },
     formSubmit() {
-      if (this.submitForm.title == '' || this.submitForm.title == null) {
-        this.$message.error('请填写标题')
-      } else if (this.submitForm.details.cover.length == 0) {
-        this.$message.error('请上传图片')
-      } else if (this.submitForm.details.follow_vol == '') {
-        this.$message.error('请填写收藏量')
-      } else if (this.submitForm.details.view_vol == '') {
-        this.$message.error('请填写浏览量')
-      } else if (this.submitForm.price == '' || this.submitForm.price == null) {
-        this.$message.error('请填写价格')
-      } else if (this.submitForm.zhaoshangType == '' || this.submitForm.zhaoshangType == null) {
-        this.$message.error('请选择招商类型')
-      } else if (this.submitForm.potentialTenants == '' || this.submitForm.potentialTenants == null) {
-        this.$message.error('请填写招商对象')
-      } else if (this.submitForm.tags == '' || this.submitForm.tags == null) {
-        this.$message.error('请填写标签')
-      } else if (this.submitForm.hangyeType > 0 || this.hangyeTypes == '' || this.submitForm.hangyeType == '') {
-        this.$message.error('请选择行业')
-      } else if (this.submitForm.details.introduce[0].title == '') {
-        this.$message.error('请填写项目标题')
-      } else if (this.submitForm.details.introduce[0].content == '') {
-        this.$message.error('请填写项目内容')
-      } else if (this.submitForm.details.business.companyName == '') {
-        this.$message.error('请填写公司名称')
-      } else if (this.submitForm.details.business.companyLogo.length == 0) {
-        this.$message.error('请上传公司logo')
-      } else if (this.submitForm.details.business.type == '') {
-        this.$message.error('请输入公司类型')
-      } else if (this.submitForm.details.share.title == '') {
-        this.$message.error('请输入分享的标题')
-      } else if (this.submitForm.details.share.text == '') {
-        this.$message.error('请输入分享的内容')
+      if (this.formtype == 'add') {
+        this.submitForm.details.something.push({ adminName: `${window.sessionStorage.username}(添加)` })
+        this.insertForm()
       } else {
-        if (this.formtype == 'add') {
-          this.submitForm.details.something.push({ adminName: `${window.sessionStorage.username}(添加)` })
-          this.insertForm()
-        } else {
-          this.submitForm.details.something.push({ adminName: `${window.sessionStorage.username}(修改)` })
-          this.editForm()
-        }
-        setTimeout(() => {
-          this.getList()
-          this.quxiao()
-        }, 100)
+        this.submitForm.details.something.push({ adminName: `${window.sessionStorage.username}(修改)` })
+        this.editForm()
       }
+      setTimeout(() => {
+        this.getList()
+        this.quxiao()
+      }, 100)
     },
     async insertForm() {
       this.subBtnLoading = true
@@ -904,7 +808,6 @@ export default {
     this.getList()
     this.getSelect()
     this.getzsTySelect()
-    this.getHySelect()
   },
   components: {
     ImgsUpload,
