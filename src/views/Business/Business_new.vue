@@ -101,9 +101,11 @@
                 <span>{{ props.row.details.describe }}</span>
               </el-form-item>
               <el-divider content-position="left">项目简介</el-divider>
-              <div v-for="(item, index) in props.row.details.introduce" :key="index" class="introduce-box">
-                <el-form-item :label="`${item.title}:`">
-                  <span>{{ item.content }}</span>
+              <div v-for="(item, i) in props.row.details.introduce" :key="i" class="introduce-box">
+                <el-form-item label="">
+                  <span class="xxnr">{{ item.title }}:</span>
+                  <div v-for="(its, index) of item.content" :key="index">{{ its }}</div>
+                  <br />
                 </el-form-item>
               </div>
               <el-divider content-position="left">商家简介</el-divider>
@@ -287,6 +289,7 @@
             </el-input>
           </el-form-item>
           <el-divider content-position="center">项目简介</el-divider>
+          <!--
           <div v-for="(item, index) in submitForm.details.introduce" :key="index">
             <el-form-item :label="`项目标题`">
               <el-input
@@ -308,6 +311,62 @@
               >
               </el-input>
             </el-form-item>
+          </div>
+          -->
+          <div v-for="(item, i) of submitForm.details.introduce" :key="i" ref="xbtnr" class="btnrbox bbbtnbox">
+            <div class="titledelbtnbox">
+              <el-form-item :label="`项目标题${i + 1}`">
+                <el-input
+                  autosize
+                  style="width:560px"
+                  type="textarea"
+                  :rows="2"
+                  v-model="submitForm.details.introduce[i].title"
+                  placeholder="请输入项目标题 "
+                />
+              </el-form-item>
+              <div class="xxnrtitledel" @click="onDel(i)" v-if="i != 0">-</div>
+            </div>
+            <div v-for="(item, index) in submitForm.details.introduce[i].content" :key="index">
+              <el-form-item :label="`项目内容${i + 1}-${index + 1}`">
+                <div class="msgbox">
+                  <el-input
+                    autosize
+                    style="width:560px"
+                    type="textarea"
+                    :rows="2"
+                    placeholder="请输入项目内容 "
+                    v-model="submitForm.details.introduce[i].content[index]"
+                  />
+                  <div class="xxnrbtndel" @click="delcontent(i, index)" v-if="index != 0">-</div>
+                  <div
+                    class="xxnrbtnadd"
+                    @click="addcontent(i)"
+                    v-if="index == submitForm.details.introduce[i].content.length - 1"
+                  >
+                    +
+                  </div>
+                  <div
+                    class="xxnrtitleadd"
+                    @click="onAdd"
+                    v-if="
+                      i == submitForm.details.introduce.length - 1 &&
+                        index == submitForm.details.introduce[i].content.length - 1
+                    "
+                  >
+                    +
+                  </div>
+                  <CheckboxsTow
+                    class="checksssbox"
+                    :key="chexkboxkey"
+                    :i="i"
+                    :index="index"
+                    ref="checkson"
+                    @ischeckbox="ischeckbox"
+                  ></CheckboxsTow>
+                </div>
+              </el-form-item>
+            </div>
           </div>
           <el-divider content-position="center">商家简介</el-divider>
           <el-form-item label="公司名称">
@@ -411,6 +470,7 @@
 <script>
 import ImgsUpload from '@/components/ImgsUpload'
 import ImgUpload from '@/components/ImgUpload'
+import CheckboxsTow from '@/components/CheckboxsTow'
 import {
   getDataList,
   insertData,
@@ -462,6 +522,7 @@ export default {
       hyTypeList: [],
       zsHyTpeList: [],
       childHyList: [],
+      checked: false,
       submitForm: {
         title: '', //标题
         tags: '', //标签
@@ -478,7 +539,7 @@ export default {
             //项目简介
             {
               title: '', //项目标题
-              content: '' //项目内容
+              content: [''] //项目内容
             }
           ],
           describe: '',
@@ -593,7 +654,7 @@ export default {
       let params = {
         page: this.queryinfo.page,
         limit: this.queryinfo.limit,
-        keyword: this.mohuchaxunData,
+        keyword: this.mhcxData,
         hidetype: this.hidetype
       }
       const { data: res } = await getHideData(params)
@@ -640,7 +701,7 @@ export default {
             //项目简介
             {
               title: '', //项目标题
-              content: '' //项目内容
+              content: [''] //项目内容
             }
           ],
           describe: '',
@@ -739,6 +800,7 @@ export default {
       this.showdialog = true
       this.submitForm = row
       this.showImgBtn = true
+      this.checkboxfun(row.details.introduce)
       if (!this.submitForm.details.something) {
         this.submitForm.details.something = [{ adminName: `${window.sessionStorage.username}(修改)` }]
       } else if (
@@ -778,6 +840,54 @@ export default {
     coverImg(url) {
       this.submitForm.details.cover.push(url)
     },
+    onAdd() {
+      this.submitForm.details.introduce.push({
+        title: '',
+        content: ['']
+      })
+    },
+    onDel(index) {
+      this.submitForm.details.introduce.splice(index, 1)
+    },
+    pushItems() {
+      this.submitForm.details.introduce = this.$props.detobjs.describe
+      this.submitForm.details.introduce.map(arr => {
+        if (!Array.isArray(arr.text)) {
+          arr.text = [arr.text]
+        }
+      })
+      this.coverUrl = this.$props.form.coverUrl
+      this.logo = this.$props.form.logo
+    },
+    addcontent(i) {
+      this.submitForm.details.introduce[i].content.push('')
+    },
+    delcontent(i, index) {
+      this.submitForm.details.introduce[i].content.splice(index, 1)
+    },
+    ischeckbox(i, index, checked) {
+      if (checked == true && this.submitForm.details.introduce[i].content[index] != '') {
+        this.submitForm.details.introduce[i].content[index] =
+          '__weca_img__ ' + this.submitForm.details.introduce[i].content[index]
+      } else {
+        this.submitForm.details.introduce[i].content[index] = this.submitForm.details.introduce[i].content[
+          index
+        ].replace('__weca_img__ ', '')
+      }
+    },
+    checkboxfun(row) {
+      row.map(item => {
+        item.content.map(te => {
+          this.numchk++
+          let num = this.numchk - 1
+          if (te.indexOf('__weca_img__ ') != -1) {
+            setTimeout(() => {
+              this.$form.checkson[num].checked = true
+            }, 0)
+          }
+        })
+      })
+    },
     cpLogoImg(url) {
       this.submitForm.details.business.companyLogo = url
     },
@@ -791,8 +901,38 @@ export default {
       this.submitForm.details.introduce.splice(i, 1)
     },
     formSubmit() {
-      if (this.submitForm.hangyeType > 0 || this.hangyeTypes == '' || this.submitForm.hangyeType == '') {
+      if (this.submitForm.title == '' || this.submitForm.title == null) {
+        this.$message.error('请填写标题')
+      } else if (this.submitForm.details.cover.length == 0) {
+        this.$message.error('请上传图片')
+      } else if (this.submitForm.details.follow_vol == '') {
+        this.$message.error('请填写收藏量')
+      } else if (this.submitForm.details.view_vol == '') {
+        this.$message.error('请填写浏览量')
+      } else if (this.submitForm.price == '' || this.submitForm.price == null) {
+        this.$message.error('请填写价格')
+      } else if (this.submitForm.zhaoshangType == '' || this.submitForm.zhaoshangType == null) {
+        this.$message.error('请选择招商类型')
+      } else if (this.submitForm.potentialTenants == '' || this.submitForm.potentialTenants == null) {
+        this.$message.error('请填写招商对象')
+      } else if (this.submitForm.tags == '' || this.submitForm.tags == null) {
+        this.$message.error('请填写标签')
+      } else if (this.submitForm.hangyeType > 0 || this.hangyeTypes == '' || this.submitForm.hangyeType == '') {
         this.$message.error('请选择行业')
+      } else if (this.submitForm.details.introduce[0].title == '') {
+        this.$message.error('请填写项目标题')
+      } else if (this.submitForm.details.introduce[0].content[0] == '') {
+        this.$message.error('请填写项目内容')
+      } else if (this.submitForm.details.business.companyName == '') {
+        this.$message.error('请填写公司名称')
+      } else if (this.submitForm.details.business.companyLogo.length == 0) {
+        this.$message.error('请上传公司logo')
+      } else if (this.submitForm.details.business.type == '') {
+        this.$message.error('请输入公司类型')
+      } else if (this.submitForm.details.share.title == '') {
+        this.$message.error('请输入分享的标题')
+      } else if (this.submitForm.details.share.text == '') {
+        this.$message.error('请输入分享的内容')
       } else {
         if (this.formtype == 'add') {
           this.submitForm.details.something.push({ adminName: `${window.sessionStorage.username}(添加)` })
@@ -878,7 +1018,8 @@ export default {
   },
   components: {
     ImgsUpload,
-    ImgUpload
+    ImgUpload,
+    CheckboxsTow
   }
 }
 </script>
@@ -978,5 +1119,90 @@ export default {
 }
 .imguploadbox {
   width: 100%;
+}
+.checksssbox {
+  margin-left: 20px;
+}
+.titledelbtnbox {
+  height: 48px;
+  display: flex;
+}
+.xxnrtitledel {
+  width: 45px;
+  height: 33px;
+  color: #ffffff;
+  background: #f56c6c;
+  font-size: 20px;
+  border-radius: 5px;
+  text-align: center;
+  line-height: 33px;
+  margin-top: 6px;
+}
+.xxnrtitledel:hover {
+  cursor: pointer;
+  background: rgba(245, 108, 108, 0.767);
+}
+.msgbox {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  .xxnrbtndel:hover {
+    cursor: pointer;
+    background: #e6a23cc4;
+  }
+  .xxnrbtnadd:hover {
+    cursor: pointer;
+    background: #40a0ffb6;
+  }
+  .xxnrbtnadd {
+    width: 45px;
+    height: 33px;
+    color: #ffffff;
+    background: #409eff;
+    font-size: 20px;
+    border-radius: 5px;
+    text-align: center;
+    line-height: 33px;
+    margin-left: 10px;
+  }
+  .xxnrbtndel {
+    width: 45px;
+    height: 33px;
+    color: #ffffff;
+    background: #e6a23c;
+    font-size: 20px;
+    border-radius: 5px;
+    text-align: center;
+    line-height: 33px;
+    margin-left: 10px;
+  }
+  .xxnrtitleadd {
+    width: 45px;
+    height: 33px;
+    color: #ffffff;
+    background: #67c23a;
+    font-size: 20px;
+    border-radius: 5px;
+    text-align: center;
+    line-height: 33px;
+    margin-left: 10px;
+  }
+  .xxnrtitleadd:hover {
+    cursor: pointer;
+    background: rgba(103, 194, 58, 0.733);
+  }
+}
+.btnrbox {
+  padding-left: 10px;
+  width: 65vw;
+  .el-button {
+    height: 40px;
+    width: 40px;
+  }
+}
+.bbbtnbox {
+  padding-top: 10px;
+  border-bottom: 1px dotted gray;
 }
 </style>

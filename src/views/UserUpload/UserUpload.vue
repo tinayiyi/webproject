@@ -741,8 +741,10 @@ export default {
     }
   },
   created() {
-    const limit = window.sessionStorage.getItem('limits')
-    const lmap = JSON.parse(window.sessionStorage.getItem('lmap'))
+    //const limit = window.sessionStorage.getItem('limits')
+    //const lmap = JSON.parse(window.sessionStorage.getItem('lmap'))
+    const limit = JSON.parse(window.sessionStorage.getItem('limits'))
+    /*
     if ((limit & lmap.m_edit) == lmap.m_edit) {
       this.isEditOnline = false
     } else {
@@ -754,6 +756,22 @@ export default {
       this.isDeleOnline = true
     }
     if ((limit & lmap.m_hide) == lmap.m_hide) {
+      this.isHideOnline = false
+    } else {
+      this.isHideOnline = true
+    }
+    */
+    if (limit.m_edit) {
+      this.isEditOnline = false
+    } else {
+      this.isEditOnline = true
+    }
+    if (limit.m_dele) {
+      this.isDeleOnline = false
+    } else {
+      this.isDeleOnline = true
+    }
+    if (limit.m_hide) {
       this.isHideOnline = false
     } else {
       this.isHideOnline = true

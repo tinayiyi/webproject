@@ -252,6 +252,7 @@
       @quxiaopltj="quxiaopltj"
       @qhsxzt="qhsxzt"
       @plczsxxx="plczsxxx"
+      @qhjxzt="qhjxzt"
       @vagueSelectss="vagueSelectss"
       @jtcxData="jtcxData"
       @morenzhi="morenzhi"
@@ -641,6 +642,7 @@ export default {
       plsxxxlistun: [],
       checkboxcj: '',
       hidetype: '',
+      sorttype: '',
       shangxianbtn: true,
       xiaxianbtn: false,
       submitbtn: false,
@@ -717,7 +719,8 @@ export default {
         page: this.queryinfo.page,
         limit: this.queryinfo.limit,
         keyword: this.mohuchaxunData,
-        hidetype: this.hidetype
+        hidetype: this.hidetype,
+        sorttype: this.sorttype
       }
       const { data: res } = await getMeetList(params)
       if (res.success !== true) return this.$message.error(res.msg)
@@ -1022,6 +1025,23 @@ export default {
         this.getList()
       }
     },
+    qhjxzt(zt) {
+      if (zt == false) {
+        this.sorttype = 'timesort'
+        this.queryinfo = {
+          limit: 10,
+          page: 1
+        }
+        this.getHideList()
+      } else {
+        this.sorttype = 'idsort'
+        this.queryinfo = {
+          limit: 10,
+          page: 1
+        }
+        this.getList()
+      }
+    },
     quxiaopltj() {
       this.plsxxxlist = []
       this.plsxxxlistun = []
@@ -1035,7 +1055,8 @@ export default {
         page: this.queryinfo.page,
         limit: this.queryinfo.limit,
         keyword: this.mohuchaxunData,
-        hidetype: this.hidetype
+        hidetype: this.hidetype,
+        sorttype: this.sorttype
       }
       const { data: res } = await getHideData(params)
       if (res.success !== true) return this.$message.error(res.error)

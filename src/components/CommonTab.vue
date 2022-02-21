@@ -15,6 +15,16 @@
       <el-button v-show="pledithide" type="success" @click="plsxxxclick" class="plsxxxbtn" size="mini" plain
         >批量上线/下线</el-button
       >
+      <el-switch
+        style="display: block"
+        v-model="isGoing"
+        active-color="#13ce66"
+        inactive-color="#ff4949"
+        active-text="显示全部"
+        inactive-text="进行中"
+        @change="qhgoing"
+      >
+      </el-switch>
       <el-button type="success" v-show="isTijiaoShow" round size="mini" @click="pltijiao">提交</el-button>
       <el-button type="info" size="mini" v-show="isTijiaoShow" @click="quxiaopl" round>取消</el-button>
     </div>
@@ -37,6 +47,7 @@ export default {
     return {
       mhcxData: '',
       isShelf: true,
+      isGoing: true,
       isTijiaoShow: false,
       pledithide: true
     }
@@ -75,6 +86,9 @@ export default {
     },
     qhsxxx() {
       this.$emit('qhsxzt', this.isShelf)
+    },
+    qhgoing() {
+      this.$emit('qhjxzt', this.isGoing)
     },
     //批量提交
     pltijiao() {

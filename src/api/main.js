@@ -5,6 +5,7 @@ export function getMeetList(params) {
   let limit = params.limit
   let keyword = params.keyword
   let hidetype = params.hidetype
+  let sorttype = params.sorttype
   return request({
     url: `/mgractivity`,
     method: 'get',
@@ -12,7 +13,8 @@ export function getMeetList(params) {
       limit: limit,
       page: page,
       keyword: keyword,
-      hidetype: hidetype
+      hidetype: hidetype,
+      sorttype: sorttype
     }
   })
 }
@@ -69,6 +71,7 @@ export function getVagueData(params) {
   let limit = params.limit
   let keyword = params.keyword
   let hidetype = params.hidetype
+  let sorttype = params.sorttype
   return request({
     url: `/mgractivity`,
     method: 'get',
@@ -76,7 +79,8 @@ export function getVagueData(params) {
       limit: limit,
       page: page,
       keyword: keyword,
-      hidetype: hidetype
+      hidetype: hidetype,
+      sorttype: sorttype
     }
   })
 }
@@ -85,6 +89,8 @@ export function getHideData(params) {
   let page = params.page
   let limit = params.limit
   let keyword = params.keyword
+  let hidetype = params.hidetype
+  let sorttype = params.sorttype
   return request({
     url: `/mgractivity`,
     method: 'get',
@@ -92,7 +98,8 @@ export function getHideData(params) {
       limit: limit,
       page: page,
       keyword: keyword,
-      hidetype: 'hide'
+      hidetype: hidetype,
+      sorttype: sorttype
     }
   })
 }
